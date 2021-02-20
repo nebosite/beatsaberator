@@ -1,0 +1,88 @@
+<html>
+    <header>
+        <title>Beat Tapper</title>
+    </header>
+    
+<body>
+<p>How to use beat tapper:</p>
+<ol>
+    <li>Find a song</li>
+    <li>Enter in length and exact beats per minute</li>
+    <li>Click on the gray bar</li>
+    <li>Start playing the song</li>
+    <li>Tap keys when you think a block should be there</li>
+    <li>Click done to generate notes</li>
+    <li>Start a song in MMA2</li>
+    <li>Paste in your notes</li>
+    <li>Edit the notes in MMA2</li>
+</ol>
+Start on beat: <input type="text" id="startBeat" value="0" /></br/>
+Beats Per Minute: <input type="text" id="beatsPerMinute" value="120" /></br/>
+Song Length (s): <input type="text" id="songLength" value="200" /></br/>
+Timer: <span id="timerValue"></span>
+<p>Keys for left: a</p>
+<p>Keys for right: l</p>
+
+<canvas width="1200" height="50" id="noteCanvas" />
+
+</body>
+</html>
+<script>
+    let startTime = Date.now();
+    let notes = [];
+    let g = null;
+    let w = 1200;
+    let h = 50;
+    let songLength = 1;
+    const timerDisplay = document.getElementById("timerValue");
+    const bpmInput = document.getElementById("beatsPerMinute");
+    const startBeatInput = document.getElementById("startBeat");
+    const songLengthInput = document.getElementById("songLength");
+
+    function reset() {
+        notes = [];
+        const canvas = document.getElementById("noteCanvas");
+        g = canvas.getContext("2d");
+        g.fillStyle = "#888888";
+        const w = canvas.width;
+        const h = canvas.height;
+        g.fillRect(0,0,w,h);
+
+    }
+
+    document.addEventListener("keydown", e => {
+        if (event.isComposing || event.keyCode === 229) { return; }  
+
+        let type = 0;
+        switch(e.keyCode)
+        {
+            case 65:  type = 0; break;
+            case 76:  type = 1; break;
+            default: return;
+        }
+
+        if(notes.length === 0) 
+        {
+            startTime = Date.now();
+            songLength = parseFloat(songLengthInput.value);
+        }
+
+        let songTime = (Date.now() - startTime)/1000;
+
+        g.fillStyle = type ?"blue" :"red"  ;
+        let y = type ? 30: 5;
+        let x = (songTime/songLength) * w;
+        g.fillRect(x,y,2,15);
+        notes.push({type, time: songTime})
+    })
+
+    setInterval(() => {
+        if(notes.length === 0) {
+            return;
+        }
+        const elapsed = Date.now() - startTime;
+        timerDisplay.innerText = (elapsed/1000).toFixed(1);
+    },100)
+
+    reset();
+</script>
